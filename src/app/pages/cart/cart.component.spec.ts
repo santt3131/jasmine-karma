@@ -54,6 +54,7 @@ describe('Cart Component', () => {
         component = fixture.componentInstance;
         fixture.detectChanges();//entrará por ngOnInit
         service = fixture.debugElement.injector.get(BookService); // o tambien TestBed.inject(BookService)
+        spyOn(service,'getBooksFromCart').and.callFake(()=> listCartBook);
     });
 
     it('should create', () => {
@@ -69,13 +70,6 @@ describe('Cart Component', () => {
     });
 
     //TEST sin return
-   /* public onInputNumberChange(action: string, book: Book): void {
-        const amount = action === 'plus' ? book.amount + 1 : book.amount - 1;
-        book.amount = Number(amount);
-        this.listCartBook = this._bookService.updateAmountBook(book);
-        this.totalPrice = this.getTotalPrice(this.listCartBook);
-      }  */
-
     it('onInputNumberChange increments correctly - no return',()=>{
         const action = 'plus';
         const book =   {
@@ -125,5 +119,42 @@ describe('Cart Component', () => {
         expect(spy2).toHaveBeenCalled();
     });
 
+
+    //PROBANDO metodo privado por medio de un publico
+
+    /*public onClearBooks(): void {
+        if (this.listCartBook && this.listCartBook.length > 0) {
+          this._clearListCartBook();
+        } else {
+           console.log("No books available");
+        }
+      }
+    
+      private _clearListCartBook() {
+        this.listCartBook = [];
+        this._bookService.removeBooksFromCart();
+      }*/
+
+      it('onClearBooks correctly- public method call private', ()=>{
+        //el espia siempre se llama antes de llamar al metodo
+        const spy1 = spyOn((component as any), '_clearListCartBook').and.callThrough();//para espiar un metodo privado as any
+        const spy2 = spyOn(service,'removeBooksFromCart').and.callFake(()=> null);
+        
+        //calltrough aqui realmente se llama. no es un face.
+        component.listCartBook = listCartBook;
+        component.onClearBooks();
+        expect(component.listCartBook.length).toBe(0);
+        expect(spy1).toHaveBeenCalled();
+        expect(spy2).toHaveBeenCalled();
+      });
+
+      it('_clearListCartBook correctly- private call', ()=>{
+        const spy1= spyOn(service, 'removeBooksFromCart').and.callFake(()=> null);
+        component.listCartBook = listCartBook;
+        component["_clearListCartBook"]();
+
+        expect(component.listCartBook.length).toBe(0);
+        expect(spy1).toHaveBeenCalled();
+      });
 
 });
