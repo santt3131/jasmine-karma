@@ -39,7 +39,7 @@ const book:Book =     {
     amount: 2
 };
 
-fdescribe('Test Service', () => {
+describe('Test Service', () => {
     let service: BookService;
     let httpMock: HttpTestingController;
     let storage = {};
@@ -93,28 +93,6 @@ fdescribe('Test Service', () => {
         expect(listBook.length).toBe(0);
     });
 
-/*
-
-  public addBookToCart(book: Book) {
-    let listBook: Book[] = JSON.parse(localStorage.getItem('listCartBook'));
-    if (listBook === null) { // Create a list with the book
-      book.amount = 1;
-      listBook = [ book ];
-    } else { 
-      const index = listBook.findIndex((item: Book) => {
-        return book.id === item.id;
-      });
-      if (index !== -1) { // Update the quantity in the existing book
-        listBook[index].amount++;
-      } else { 
-        book.amount = 1;
-        listBook.push(book);
-      }
-    }
-    localStorage.setItem('listCartBook', JSON.stringify(listBook));
-    this._toastSuccess(book);
-  }
-*/
     it('addBookToCart add a book sucessfully when the list does not exist in the localStorage', () => {
         const toast = {
             fire: ()=>null
@@ -131,6 +109,16 @@ fdescribe('Test Service', () => {
         listBook = service.getBooksFromCart();
         expect(listBook.length).toBe(1);
         expect(spy1).toHaveBeenCalled();
+    });
+
+    it('RemoveBooksFromCart removes the lsit from the localStorage',()=>{
+        service.addBookToCart(book);
+        let listBook = service.getBooksFromCart();
+        expect(listBook.length).toBe(1);
+
+        service.removeBooksFromCart();
+        listBook = service.getBooksFromCart();
+        expect(listBook.length).toBe(0);
     });
 
 });
